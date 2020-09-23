@@ -141,7 +141,7 @@ class ViewController: UIViewController {
             button.layer.borderColor = UIColor.lightGray.cgColor
             //CGColor(red: 180, green: 230, blue: 220, alpha: 1.0)
         }
-        loadLevel()
+        performSelector(inBackground: #selector(loadLevel), with: nil)
         
     }
 
@@ -221,7 +221,7 @@ class ViewController: UIViewController {
         activatedButtons.removeAll()
     }
     
-    func loadLevel(){
+    @objc func loadLevel(){
         
         var clueString = ""
         var solutionString = ""
@@ -251,16 +251,22 @@ class ViewController: UIViewController {
                 }
             }
         }
-        cluesLabel.text = clueString.trimmingCharacters(in: .whitespacesAndNewlines)
-        answersLabel.text = solutionString.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        letterButtons.shuffle()
-        
-        if letterButtons.count == letterBits.count {
-            for i in 0..<letterButtons.count {
-                letterButtons[i].setTitle(letterBits[i], for: .normal)
+        DispatchQueue.main.async { [weak self] in
+            self?.cluesLabel.text = clueString.trimmingCharacters(in: .whitespacesAndNewlines)
+            self?.answersLabel.text = solutionString.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            self?.letterButtons.shuffle()
+            
+            guard let buttonsCount = self?.letterButtons.count else {return}
+            
+            if self?.letterButtons.count == letterBits.count {
+                for i in 0..<buttonsCount {
+                    self?.letterButtons[i].setTitle(letterBits[i], for: .normal)
+                }
             }
         }
+        
     }
+    
 }
 
